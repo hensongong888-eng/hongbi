@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>红笔 · AI小红书文案神器</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #FF2442;
+    --red-light: #FF6B81;
+    --red-pale: #FFF0F2;
+    --ink: #1A0A0C;
+    --gray: #6B5B5E;
+    --gray-light: #F5EEEF;
+    --white: #FFFCFC;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Noto Sans SC', sans-serif; background: var(--white); color: var(--ink); min-height: 100vh; }
+
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 48px; border-bottom: 1px solid #F0E8E9;
+    position: sticky; top: 0; background: rgba(255,252,252,0.95);
+    backdrop-filter: blur(8px); z-index: 100;
+  }
+  .logo { font-family: 'Noto Serif SC', serif; font-size: 22px; font-weight: 900; color: var(--red); letter-spacing: 2px; display: flex; align-items: center; gap: 8px; }
+  .logo-dot { width: 8px; height: 8px; background: var(--red); border-radius: 50%; }
+  .nav-badge { background: var(--red); color: white; font-size: 12px; padding: 6px 18px; border-radius: 100px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+  .nav-badge:hover { background: #CC1A33; transform: translateY(-1px); }
+
+  .hero { padding: 80px 48px 60px; max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start; }
+  .hero-tag { display: inline-flex; align-items: center; gap: 6px; background: var(--red-pale); color: var(--red); font-size: 12px; font-weight: 500; padding: 5px 14px; border-radius: 100px; margin-bottom: 24px; letter-spacing: 1px; }
+  h1 { font-family: 'Noto Serif SC', serif; font-size: 52px; font-weight: 900; line-height: 1.15; color: var(--ink); margin-bottom: 20px; }
+  h1 span { color: var(--red); }
+  .hero-sub { font-size: 16px; color: var(--gray); line-height: 1.7; margin-bottom: 36px; }
+  .stats { display: flex; gap: 32px; margin-bottom: 40px; }
+  .stat-num { font-family: 'Noto Serif SC', serif; font-size: 28px; font-weight: 900; color: var(--red); }
+  .stat-label { font-size: 12px; color: var(--gray); margin-top: 2px; }
+  .free-badge { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--gray); }
+  .free-badge::before { content: ''; display: inline-block; width: 6px; height: 6px; background: #4CAF50; border-radius: 50%; }
+
+  .tool-card { background: white; border: 1.5px solid #F0E8E9; border-radius: 20px; padding: 32px; box-shadow: 0 4px 40px rgba(255,36,66,0.08); }
+  .card-title { font-size: 14px; font-weight: 500; color: var(--gray); margin-bottom: 20px; letter-spacing: 1px; text-transform: uppercase; }
+  .form-group { margin-bottom: 18px; }
+  label { display: block; font-size: 13px; font-weight: 500; color: var(--ink); margin-bottom: 8px; }
+  input, textarea { width: 100%; padding: 12px 16px; border: 1.5px solid #EDE0E2; border-radius: 10px; font-family: 'Noto Sans SC', sans-serif; font-size: 14px; color: var(--ink); background: var(--white); outline: none; transition: border-color 0.2s; resize: none; }
+  input:focus, textarea:focus { border-color: var(--red-light); }
+  input::placeholder, textarea::placeholder { color: #C4B0B3; }
+
+  .style-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+  .pill { padding: 7px 16px; border-radius: 100px; border: 1.5px solid #EDE0E2; font-size: 13px; color: var(--gray); cursor: pointer; transition: all 0.2s; background: white; }
+  .pill:hover, .pill.active { border-color: var(--red); color: var(--red); background: var(--red-pale); }
+
+  .generate-btn { width: 100%; padding: 15px; background: var(--red); color: white; border: none; border-radius: 12px; font-family: 'Noto Sans SC', sans-serif; font-size: 16px; font-weight: 500; cursor: pointer; transition: all 0.2s; margin-top: 16px; letter-spacing: 1px; }
+  .generate-btn:hover { background: #CC1A33; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(255,36,66,0.3); }
+
+  .result-section { max-width: 1100px; margin: 0 auto 80px; padding: 0 48px; display: none; }
+  .result-section.visible { display: block; }
+  .result-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+  .result-title { font-family: 'Noto Serif SC', serif; font-size: 22px; font-weight: 700; }
+  .result-actions { display: flex; gap: 10px; }
+  .action-btn { padding: 8px 20px; border-radius: 8px; font-size: 13px; cursor: pointer; transition: all 0.2s; font-family: 'Noto Sans SC', sans-serif; }
+  .action-btn.outline { border: 1.5px solid #EDE0E2; background: white; color: var(--gray); }
+  .action-btn.outline:hover { border-color: var(--red); color: var(--red); }
+  .action-btn.filled { border: none; background: var(--red); color: white; }
+  .action-btn.filled:hover { background: #CC1A33; }
+
+  .result-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .result-card { background: white; border: 1.5px solid #F0E8E9; border-radius: 16px; padding: 24px; position: relative; transition: all 0.2s; }
+  .result-card:hover { border-color: var(--red-light); box-shadow: 0 4px 20px rgba(255,36,66,0.08); transform: translateY(-2px); }
+  .result-card-label { font-size: 11px; font-weight: 500; color: var(--red); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; }
+  .result-card-text { font-size: 14px; line-height: 1.8; color: var(--ink); white-space: pre-wrap; }
+  .copy-single { position: absolute; top: 16px; right: 16px; width: 28px; height: 28px; border-radius: 6px; border: 1px solid #EDE0E2; background: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px; transition: all 0.2s; }
+  .copy-single:hover { border-color: var(--red); color: var(--red); }
+
+  .pricing-section { background: var(--gray-light); padding: 80px 48px; }
+  .pricing-inner { max-width: 800px; margin: 0 auto; text-align: center; }
+  .pricing-tag { display: inline-block; background: var(--red-pale); color: var(--red); font-size: 12px; padding: 5px 14px; border-radius: 100px; margin-bottom: 20px; letter-spacing: 1px; }
+  .pricing-h2 { font-family: 'Noto Serif SC', serif; font-size: 36px; font-weight: 900; margin-bottom: 12px; }
+  .pricing-sub { color: var(--gray); font-size: 15px; margin-bottom: 48px; }
+  .pricing-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; text-align: left; }
+  .pricing-card { background: white; border: 1.5px solid #F0E8E9; border-radius: 20px; padding: 32px; }
+  .pricing-card.featured { border-color: var(--red); position: relative; }
+  .featured-tag { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--red); color: white; font-size: 11px; padding: 4px 16px; border-radius: 100px; font-weight: 500; white-space: nowrap; }
+  .plan-name { font-size: 13px; font-weight: 500; color: var(--gray); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 12px; }
+  .plan-price { font-family: 'Noto Serif SC', serif; font-size: 40px; font-weight: 900; color: var(--ink); margin-bottom: 4px; }
+  .plan-price sup { font-size: 20px; vertical-align: super; }
+  .plan-period { font-size: 13px; color: var(--gray); margin-bottom: 24px; }
+  .plan-features { list-style: none; margin-bottom: 28px; }
+  .plan-features li { font-size: 14px; color: var(--gray); padding: 6px 0; border-bottom: 1px solid #F5EEEF; display: flex; align-items: center; gap: 8px; }
+  .plan-features li::before { content: '✓'; color: var(--red); font-weight: 700; }
+  .plan-btn { width: 100%; padding: 13px; border-radius: 10px; font-family: 'Noto Sans SC', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s; letter-spacing: 1px; }
+  .plan-btn.outline { border: 1.5px solid #EDE0E2; background: white; color: var(--ink); }
+  .plan-btn.outline:hover { border-color: var(--red); }
+  .plan-btn.filled { border: none; background: var(--red); color: white; }
+  .plan-btn.filled:hover { background: #CC1A33; }
+
+  footer { padding: 32px 48px; border-top: 1px solid #F0E8E9; display: flex; align-items: center; justify-content: space-between; }
+  .footer-logo { font-family: 'Noto Serif SC', serif; font-weight: 900; color: var(--red); font-size: 16px; }
+  .footer-text { font-size: 13px; color: var(--gray); }
+
+  .toast { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--ink); color: white; padding: 12px 24px; border-radius: 100px; font-size: 14px; opacity: 0; transition: all 0.3s; z-index: 999; pointer-events: none; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  @media (max-width: 768px) {
+    header { padding: 16px 20px; }
+    .hero { grid-template-columns: 1fr; padding: 40px 20px 32px; gap: 40px; }
+    h1 { font-size: 36px; }
+    .result-section { padding: 0 20px; }
+    .result-cards { grid-template-columns: 1fr; }
+    .pricing-section { padding: 60px 20px; }
+    .pricing-cards { grid-template-columns: 1fr; }
+    footer { padding: 24px 20px; flex-direction: column; gap: 8px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo"><span class="logo-dot"></span>红笔</div>
+  <div class="nav-badge" onclick="document.querySelector('.pricing-section').scrollIntoView({behavior:'smooth'})">升级会员 ✨</div>
+</header>
+
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-tag">✦ AI 驱动</div>
+    <h1>小红书文案<br><span>一键生成</span></h1>
+    <p class="hero-sub">输入主题，秒出爆款文案。<br>标题党 · 种草风 · 干货流，风格随你选。</p>
+    <div class="stats">
+      <div class="stat-item"><div class="stat-num">10万+</div><div class="stat-label">已生成文案</div></div>
+      <div class="stat-item"><div class="stat-num">3秒</div><div class="stat-label">平均出稿</div></div>
+      <div class="stat-item"><div class="stat-num">98%</div><div class="stat-label">用户满意度</div></div>
+    </div>
+    <div class="free-badge">完全免费，无需注册，立即使用</div>
+  </div>
+
+  <div class="tool-card">
+    <div class="card-title">开始创作</div>
+    <div class="form-group">
+      <label>主题 / 产品</label>
+      <input type="text" id="topic" placeholder="例：奶油色毛衣、减脂餐、咖啡店打卡…" maxlength="50">
+    </div>
+    <div class="form-group">
+      <label>补充说明（可选）</label>
+      <textarea id="detail" rows="2" placeholder="例：目标人群是20-25岁女生，希望突出显瘦效果…"></textarea>
+    </div>
+    <div class="form-group">
+      <label>文案风格</label>
+      <div class="style-pills">
+        <div class="pill active" data-style="seed">🌸 种草安利</div>
+        <div class="pill" data-style="guide">📋 干货攻略</div>
+        <div class="pill" data-style="emotion">💫 情绪共鸣</div>
+        <div class="pill" data-style="funny">😂 搞笑幽默</div>
+        <div class="pill" data-style="luxury">✨ 高级质感</div>
+      </div>
+    </div>
+    <button class="generate-btn" onclick="generate()">✦ 生成文案</button>
+  </div>
+</section>
+
+<section class="result-section" id="resultSection">
+  <div class="result-header">
+    <div class="result-title">生成结果</div>
+    <div class="result-actions">
+      <button class="action-btn outline" onclick="generate()">↺ 重新生成</button>
+      <button class="action-btn filled" onclick="copyAll()">复制全部</button>
+    </div>
+  </div>
+  <div class="result-cards" id="resultCards"></div>
+</section>
+
+<section class="pricing-section">
+  <div class="pricing-inner">
+    <div class="pricing-tag">会员计划</div>
+    <h2 class="pricing-h2">解锁更多功能</h2>
+    <p class="pricing-sub">免费版已够日常使用，会员版解锁更多专属风格和功能</p>
+    <div class="pricing-cards">
+      <div class="pricing-card">
+        <div class="plan-name">免费版</div>
+        <div class="plan-price"><sup>¥</sup>0</div>
+        <div class="plan-period">永久免费</div>
+        <ul class="plan-features">
+          <li>无限次生成</li>
+          <li>5 种文案风格</li>
+          <li>一键复制</li>
+        </ul>
+        <button class="plan-btn outline">当前方案</button>
+      </div>
+      <div class="pricing-card featured">
+        <div class="featured-tag">🔥 最受欢迎</div>
+        <div class="plan-name">会员版</div>
+        <div class="plan-price"><sup>¥</sup>19.9</div>
+        <div class="plan-period">每月</div>
+        <ul class="plan-features">
+          <li>AI 真人智能生成</li>
+          <li>10+ 专属风格</li>
+          <li>爆款标题优化</li>
+          <li>话题标签推荐</li>
+          <li>历史记录保存</li>
+        </ul>
+        <button class="plan-btn filled" onclick="showPayment()">立即开通</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo">红笔</div>
+  <div class="footer-text">© 2025 红笔 · AI文案生成器</div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let selectedStyle = 'seed';
+
+document.querySelectorAll('.pill').forEach(pill => {
+  pill.addEventListener('click', () => {
+    document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+    pill.classList.add('active');
+    selectedStyle = pill.dataset.style;
+  });
+});
+
+const templates = {
+  seed: {
+    titles: [
+      "姐妹们！{topic}真的绝了😭",
+      "种草预警⚠️ {topic}用了就回不去",
+      "我后悔没早点发现{topic}！！",
+      "这个{topic}让我路转粉🌸",
+      "已经回购3次的{topic}，真的太香了"
+    ],
+    bodies: [
+      "真的没想到{topic}能这么好用！\n\n之前一直觉得这类产品都差不多，直到遇见它……\n\n✨ 第一次用就被惊艳到\n✨ 用了一周之后效果更明显\n✨ 朋友们都来问我同款\n\n{detail}强烈推荐给有需要的姐妹们，真的不踩雷！",
+      "分享一个最近超爱的{topic}💕\n\n说实话我是被朋友安利才买的，买回来才发现真的太好了！\n\n👉 颜值在线\n👉 实际效果超出预期\n👉 性价比拉满\n\n{detail}已经给身边的朋友推荐了好几个，反响都很好~"
+    ],
+    tags: ["#{topic}", "#好物推荐", "#种草", "#小红书好物", "#真实测评"]
+  },
+  guide: {
+    titles: [
+      "{topic}完整攻略，建议收藏📌",
+      "关于{topic}，我踩过的坑都在这里",
+      "手把手教你玩转{topic}｜超详细",
+      "{topic}新手必看！避开这些坑",
+      "整理了{topic}最全攻略，不谢"
+    ],
+    bodies: [
+      "今天来聊聊{topic}，干货满满请收好！\n\n📌 基础知识\n很多人对{topic}的认知有误区，其实……\n\n📌 核心要点\n{detail}掌握这几点就能避开90%的坑\n\n📌 进阶技巧\n用熟之后可以尝试这些方法，效果翻倍\n\n📌 常见问题\nQ：新手怎么入门？\nA：从基础开始，循序渐进",
+      "【{topic}避坑指南】\n\n✅ 正确做法\n掌握核心逻辑，{detail}事半功倍\n\n❌ 常见误区\n• 误区一：很多人以为越多越好，其实不然\n• 误区二：忽略了这个关键细节\n• 误区三：方法用错了效果反而差\n\n💡 我的经验\n亲测有效，建议收藏慢慢看"
+    ],
+    tags: ["#{topic}攻略", "#干货分享", "#新手必看", "#实用技巧", "#经验分享"]
+  },
+  emotion: {
+    titles: [
+      "那天遇见{topic}，我突然就释怀了",
+      "有些事只有爱{topic}的人才懂",
+      "在{topic}这件事上，我终于想通了",
+      "写给同样喜欢{topic}的你",
+      "因为{topic}，我开始爱上生活"
+    ],
+    bodies: [
+      "不知道你有没有过这种感觉——\n\n在某个普通的下午，遇见了{topic}，突然觉得生活还挺好的。\n\n{detail}\n\n也许是因为它让我慢下来了，\n也许是因为它让我想起了某些美好的事情。\n\n喜欢的东西，不需要理由。",
+      "最近总是想到{topic}。\n\n不是因为它多特别，\n而是在某个疲惫的时刻，\n它恰好出现了。\n\n{detail}\n\n后来我明白，\n生活里需要一些这样的东西——\n让你觉得，一切都还好。"
+    ],
+    tags: ["#{topic}", "#生活感悟", "#治愈系", "#慢生活", "#内心独白"]
+  },
+  funny: {
+    titles: [
+      "我对{topic}上头了，救救我😂",
+      "被{topic}支配的恐惧（笑哭）",
+      "妈妈问我为什么跪着玩{topic}",
+      "{topic}：我只是个普通产品，我没想到……",
+      "正在研究{topic}的废物在此报道🙋"
+    ],
+    bodies: [
+      "事情是这样的……\n\n我本来只是随便看看{topic}，\n结果……就上头了。\n\n{detail}\n\n现在我的状态是：\n• 脑子：不能再买了\n• 手：已经加购了\n• 钱包：我不想说话\n\n有没有同款废物？🙋",
+      "今日份{topic}研究报告（非正式）：\n\n实验对象：我\n实验时间：本来说只看五分钟\n实际时间：两个小时后……\n\n{detail}\n\n实验结论：这个东西有毒\n\n建议：谨慎靠近，后果自负😂"
+    ],
+    tags: ["#{topic}", "#搞笑日常", "#废物快乐", "#打工人", "#哈哈哈"]
+  },
+  luxury: {
+    titles: [
+      "{topic}，恰到好处的美",
+      "关于{topic}，美的事物不需要解释",
+      "发现{topic}之后，审美在线了",
+      "那些值得被认真对待的{topic}",
+      "{topic} · 细节里的品味"
+    ],
+    bodies: [
+      "有些东西，不需要太多介绍。\n\n{topic}，\n第一眼就知道值得。\n\n{detail}\n\n好的东西总是有迹可循——\n在细节里，在质感里，\n在你用过之后的那种感受里。",
+      "关于{topic}，我想说的不多。\n\n只是在某个安静的时刻，\n感受到了它的分量。\n\n{detail}\n\n不是所有好东西都需要大声说出来，\n真正懂的人，自然会懂。"
+    ],
+    tags: ["#{topic}", "#品质生活", "#精致日常", "#审美在线", "#值得拥有"]
+  }
+};
+
+function pick(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function fillTemplate(str, topic, detail) {
+  const d = detail || '用过才知道有多好用。';
+  return str.replace(/{topic}/g, topic).replace(/{detail}/g, d);
+}
+
+function buildContent(topic, detail, styleKey, version) {
+  const t = templates[styleKey];
+  const title = fillTemplate(pick(t.titles), topic, detail);
+  const body = fillTemplate(t.bodies[version % t.bodies.length], topic, detail);
+  const tags = t.tags.map(tag => fillTemplate(tag, topic, detail)).join(' ');
+  return `【${title}】\n\n${body}\n\n${tags}`;
+}
+
+function generate() {
+  const topic = document.getElementById('topic').value.trim();
+  if (!topic) { showToast('请先输入主题或产品名称'); return; }
+  const detail = document.getElementById('detail').value.trim();
+
+  const versions = [
+    { label: '版本一', content: buildContent(topic, detail, selectedStyle, 0) },
+    { label: '版本二', content: buildContent(topic, detail, selectedStyle, 1) },
+    { label: '版本三', content: buildContent(topic, detail, (selectedStyle === 'seed' ? 'guide' : 'seed'), 0) }
+  ];
+
+  renderResults(versions);
+}
+
+function renderResults(versions) {
+  const section = document.getElementById('resultSection');
+  const cards = document.getElementById('resultCards');
+  cards.innerHTML = versions.map((v, i) => `
+    <div class="result-card">
+      <button class="copy-single" onclick="copySingle(${i})" title="复制">⎘</button>
+      <div class="result-card-label">${v.label}</div>
+      <div class="result-card-text" id="result-${i}">${v.content}</div>
+    </div>
+  `).join('');
+  section.classList.add('visible');
+  section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function copySingle(i) {
+  const text = document.getElementById('result-' + i).textContent;
+  navigator.clipboard.writeText(text).then(() => showToast('已复制到剪贴板 ✓'));
+}
+
+function copyAll() {
+  const all = Array.from(document.querySelectorAll('.result-card-text'))
+    .map(el => el.textContent).join('\n\n---\n\n');
+  navigator.clipboard.writeText(all).then(() => showToast('已复制全部文案 ✓'));
+}
+
+function showPayment() {
+  showToast('请添加微信客服开通会员 😊');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+</script>
+</body>
+</html>
